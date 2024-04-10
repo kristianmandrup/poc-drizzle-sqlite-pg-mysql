@@ -3,7 +3,7 @@ import { drizzle as sqliteDrizzle } from 'drizzle-orm/better-sqlite3';
 import { drizzle as mysqlDrizzle } from 'drizzle-orm/mysql2';
 import { drizzle as pgDrizzle } from 'drizzle-orm/node-postgres';
 import mysql from 'mysql2/promise';
-import { Pool } from 'pg';
+import pg from 'pg';
 import { makeDbString } from '~/db/utils/make-db-string';
 import { envConfig } from '~/env';
 
@@ -32,12 +32,13 @@ export const DEFAULT_DB_STRING = {
 };
 
 export function createSqliteClient(dbString: string = DEFAULT_DB_STRING.sqlite) {
+  console.log({ dbString });
   const connection = new Database(dbString);
   return sqliteDrizzle(connection);
 }
 
 export function createPgClient(dbString: string = DEFAULT_DB_STRING.pg) {
-  const connection = new Pool({
+  const connection = new pg.Pool({
     connectionString: dbString
   });
   return pgDrizzle(connection);

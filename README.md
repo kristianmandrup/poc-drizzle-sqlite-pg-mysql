@@ -31,10 +31,31 @@ pnpm install
 ```
 
 4. Create `.env` file and use `.env.example` as a template
+
+Example:
+
+```bash
+STAGE="dev"
+
+SQLITE_DB_NAME="db/sqlite.db"
+```
+
 5. Start development server
 
 ```
 pnpm dev
+```
+
+6. Run `db:init` script to initialize the DB
+
+```
+pnpm db:init
+```
+
+```
+[INFO]: Initializing databases setup
+[INFO]: Creating SQLite database  in ./databases/sqlite/.db
+[INFO]: Databases setup completed!
 ```
 
 ## Project Structure
@@ -52,6 +73,8 @@ pnpm dev
 The `package.json` includes several scripts to interact with each database:
 
 ### SQLite
+
+Create or ensure you have an `databases/sqlite` folder
 
 - **Generate Schema**: `pnpm sqlite:generate`
 - **Push Schema**: `pnpm sqlite:push`

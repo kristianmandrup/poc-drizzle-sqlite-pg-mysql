@@ -18,12 +18,12 @@ export async function batchInsertFakeUsers({
     const users = makeFakeUsers(batchSize);
 
     const insertStrategy = {
-      sqlite: sqliteUserService.insertMany({ values: users }),
-      pg: pgUserService.insertMany({ values: users }),
-      mysql: mysqlUserService.insertMany({ values: users })
-    }[dbType];
+      sqlite: sqliteUserService,
+      pg: pgUserService,
+      mysql: mysqlUserService
+    };
 
-    await insertStrategy;
+    await insertStrategy[dbType]().insertMany({ values: users });
 
     const databaseName = {
       sqlite: 'SQLite',

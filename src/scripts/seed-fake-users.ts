@@ -4,10 +4,6 @@ import { usersTable as mysqlUsersTable } from '~/db/mysql/schema';
 import { usersTable as pgUsersTable } from '~/db/pg/schema';
 import { usersTable as sqliteUsersTable } from '~/db/sqlite/schema';
 
-const sqliteClient = createSqliteClient();
-const pgClient = createPgClient();
-const mysqlClient = createMysqlClient();
-
 async function seedFakeUsers({
   dbType,
   batchCount,
@@ -20,15 +16,15 @@ async function seedFakeUsers({
   console.log('Cleaning up...');
 
   if (dbType === 'sqlite') {
-    await sqliteClient.delete(sqliteUsersTable);
+    await createSqliteClient().delete(sqliteUsersTable);
   }
 
   if (dbType === 'pg') {
-    await pgClient.delete(pgUsersTable);
+    await createPgClient().delete(pgUsersTable);
   }
 
   if (dbType === 'mysql') {
-    await mysqlClient.delete(mysqlUsersTable);
+    await createMysqlClient().delete(mysqlUsersTable);
   }
 
   console.log(
@@ -49,8 +45,8 @@ async function seedFakeUsers({
 
 void seedFakeUsers({
   dbType: 'sqlite',
-  batchCount: 1_000_000,
-  batchSize: 10_000
+  batchCount: 100,
+  batchSize: 50
 });
 
 // void seedFakeUsers({

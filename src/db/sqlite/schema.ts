@@ -1,5 +1,6 @@
 import { relations, sql } from 'drizzle-orm';
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { SQLiteSchemaBuilder, Time } from '../helpers/sqlite';
 
 export const usersTable = sqliteTable(
   'users',
@@ -27,23 +28,18 @@ export const usersRelations = relations(usersTable, ({ many }) => ({
   posts: many(postsTable)
 }));
 
+const builder = new SQLiteSchemaBuilder('user');
+
 export const postsTable = sqliteTable(
   'posts',
   {
-    id: integer('id').primaryKey().notNull(),
-    userId: integer('user_id').references(() => usersTable.id, {
-      onDelete: 'cascade'
-    }),
-    title: text('title'),
-    content: text('content'),
-    createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`)
+    id: builder.primary(),
+    userId: builder.relation(usersTable),
+    title: builder.str('title'),
+    content: builder.str('content'),
+    createdAt: builder.timeDate('created_at', { default: Time.Now })
   },
-  table => ({
-    userIdIdx: index('posts_user_id_idx').on(table.userId),
-    titleIdx: index('posts_title_idx').on(table.title),
-    contentIdx: index('posts_content_idx').on(table.content),
-    createdAtIdx: index('posts_created_at_idx').on(table.createdAt)
-  })
+  builder.indexFor(['id', 'user_id', 'title', 'content'])
 );
 
 export type Post = typeof postsTable.$inferSelect;

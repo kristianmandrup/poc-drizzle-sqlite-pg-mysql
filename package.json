@@ -2,9 +2,11 @@
   "name": "poc-drizzle-sqlite-pg-mysql",
   "version": "1.0.0",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "dev": "npx tsx watch ./src/index.ts --no-cache",
     "db:init": "sh ./setup/bash/db-init.sh",
+    "db:seed": "npx tsx ./src/scripts/seed-fake-users.ts",
     "db:start": "pnpm db:init && docker compose -f ./docker-compose.yaml up -d",
     "db:stop": "docker compose -f ./docker-compose.yaml down",
     "sqlite:generate": "pnpm drizzle-kit generate:sqlite --config=./drizzle.sqlite.config.ts",
