@@ -8,6 +8,13 @@
       "when": 1698989156189,
       "tag": "0000_hot_fabian_cortez",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1712757034146,
+      "tag": "0001_lazy_inertia",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { ColumnBaseConfig, ColumnDataType, sql } from 'drizzle-orm';
-import type { IndexColumn, PgColumn } from 'drizzle-orm/pg-core';
+import type { IndexColumn, PgColumn, PgTableExtraConfig } from 'drizzle-orm/pg-core';
 import type { IndexBuilderOn, PgTimestampConfig } from 'drizzle-orm/pg-core';
 import { index, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { BaseSchemaBuilder } from './base';
@@ -53,7 +53,7 @@ export class PgSchemaBuilder extends BaseSchemaBuilder {
 
   indexFor(names: string[]) {
     return (table: Record<string, IndexColumn>) =>
-      names.reduce((acc: Record<string, unknown>, name) => {
+      names.reduce((acc: PgTableExtraConfig, name) => {
         const indexName = `${name}Idx`;
         const idx: IndexBuilderOn = index(`${this.tableName}_${name}_idx`);
         if (table[name]) {

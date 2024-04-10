@@ -1,21 +1,19 @@
 import { relations, sql } from 'drizzle-orm';
 import { index, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
+import { PgSchemaBuilder, Time } from '../helpers/pg';
+
+const builder = new PgSchemaBuilder('user');
 
 export const usersTable = pgTable(
   'users',
   {
-    id: serial('serial').primaryKey().notNull(),
-    firstName: varchar('first_name', { length: 255 }),
-    lastName: varchar('last_name', { length: 255 }),
-    email: varchar('email', { length: 255 }),
-    createdAt: timestamp('created_at', { precision: 6, withTimezone: true }).default(sql`NOW()`)
+    id: builder.primary(),
+    firstName: builder.str('first_name'),
+    lastName: builder.str('last_name'),
+    email: builder.str('email'),
+    createdAt: builder.timeDate('created_at', { default: Time.Now })
   },
-  table => ({
-    firstNameIdx: index('users_first_name_idx').on(table.firstName),
-    lastNameIdx: index('users_last_name_idx').on(table.lastName),
-    emailIdx: index('users_email_idx').on(table.email),
-    createdAtIdx: index('users_created_at_idx').on(table.createdAt)
-  })
+  builder.indexFor(['first_name', 'last_name', 'email'])
 );
 
 export type User = typeof usersTable.$inferSelect;

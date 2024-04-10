@@ -3,21 +3,22 @@ import type {
   IndexBuilderOn,
   IndexColumn,
   MySqlColumn,
+  MySqlDatetimeConfig,
   MySqlTableWithColumns
 } from 'drizzle-orm/mysql-core';
-import { index, int, text } from 'drizzle-orm/mysql-core';
+import { datetime, index, int, text } from 'drizzle-orm/mysql-core';
 import { BaseSchemaBuilder } from './base';
 
 export enum Time {
   Now
 }
 
-export interface TimeOpts {
+export interface TimeOpts extends MySqlDatetimeConfig {
   default?: Time;
 }
 
 const defaults: Record<Time, unknown> = {
-  [Time.Now]: sql`CURRENT_TIMESTAMP`
+  [Time.Now]: sql`CURRENT_TIMESTAMP(6)`
 };
 
 export class MySqlSchemaBuilder extends BaseSchemaBuilder {
@@ -40,8 +41,8 @@ export class MySqlSchemaBuilder extends BaseSchemaBuilder {
     return text(name);
   }
 
-  timeDate(name: string, opts: TimeOpts = {}) {
-    const ts = text(name);
+  timeDate(name: string, opts: TimeOpts = { fsp: 6 }) {
+    const ts = datetime(name, opts);
 
     if (opts.default) {
       const td = defaults[opts.default];
