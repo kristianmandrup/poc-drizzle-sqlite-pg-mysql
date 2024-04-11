@@ -58,6 +58,19 @@ pnpm db:init
 [INFO]: Databases setup completed!
 ```
 
+7. Generate and push schemas
+
+```
+pnpm sqlite:generate
+pnpm sqlite:push
+```
+
+8. Generate and populate with seed (fake) data (sqlite by default)
+
+```
+pnpm db:seed
+```
+
 ## Project Structure
 
 - `src/`: Source code directory
