@@ -1,5 +1,5 @@
-import { relations, sql } from 'drizzle-orm';
-import { datetime, index, int, mysqlTable, varchar } from 'drizzle-orm/mysql-core';
+import { relations } from 'drizzle-orm';
+import { mysqlTable } from 'drizzle-orm/mysql-core';
 import { MySqlSchemaBuilder, Time } from '../helpers/mysql';
 
 const builder = new MySqlSchemaBuilder('user');
@@ -13,7 +13,7 @@ export const usersTable = mysqlTable(
     email: builder.str('email'),
     createdAt: builder.timeDate('created_at', { default: Time.Now })
   },
-  builder.indexFor(['first_name', 'last_name', 'email'])
+  builder.indexFor('first_name', 'last_name', 'email')
 );
 
 export type User = typeof usersTable.$inferSelect;
@@ -27,19 +27,12 @@ export const postsTable = mysqlTable(
   'posts',
   {
     id: builder.primary(),
-    userId: int('user_id').references(() => usersTable.id, {
-      onDelete: 'cascade'
-    }),
-    title: varchar('title', { length: 255 }),
-    content: varchar('content', { length: 255 }),
-    createdAt: datetime('created_at', { fsp: 6 }).default(sql`CURRENT_TIMESTAMP(6)`)
+    userId: builder.relation(usersTable),
+    title: builder.str('title'),
+    content: builder.str('content'),
+    createdAt: builder.timeDate('created_at', { default: Time.Now })
   },
-  table => ({
-    userIdIdx: index('posts_user_id_idx').on(table.userId),
-    titleIdx: index('posts_title_idx').on(table.title),
-    contentIdx: index('posts_content_idx').on(table.content),
-    createdAtIdx: index('posts_created_at_idx').on(table.createdAt)
-  })
+  builder.indexFor('first_name', 'user_id', 'title', 'content')
 );
 
 export type Post = typeof postsTable.$inferSelect;

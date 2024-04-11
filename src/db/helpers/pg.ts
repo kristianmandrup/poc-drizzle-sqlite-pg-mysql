@@ -1,5 +1,10 @@
-import { ColumnBaseConfig, ColumnDataType, sql } from 'drizzle-orm';
-import type { IndexColumn, PgColumn, PgTableExtraConfig } from 'drizzle-orm/pg-core';
+import { ColumnBaseConfig, ColumnDataType, relations, sql } from 'drizzle-orm';
+import type {
+  IndexColumn,
+  PgColumn,
+  PgTableExtraConfig,
+  PgTableWithColumns
+} from 'drizzle-orm/pg-core';
 import type { IndexBuilderOn, PgTimestampConfig } from 'drizzle-orm/pg-core';
 import { index, serial, timestamp, varchar } from 'drizzle-orm/pg-core';
 import { BaseSchemaBuilder } from './base';
@@ -18,14 +23,15 @@ const defaults: Record<Time, unknown> = {
   [Time.Now]: sql`NOW()`
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Table = PgTableWithColumns<any>;
+
 export class PgSchemaBuilder extends BaseSchemaBuilder {
-  relation(
-    table: Record<string, PgColumn<ColumnBaseConfig<ColumnDataType, string>, object, object>>
-  ) {
+  relation(table: Table) {
     const field = serial(`${this.tableName}_id`);
     if (table.id) {
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      field.references(() => table['id']!, {
+      // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-return
+      field.references(() => table.id!, {
         onDelete: 'cascade'
       });
     }
@@ -51,7 +57,7 @@ export class PgSchemaBuilder extends BaseSchemaBuilder {
     return ts;
   }
 
-  indexFor(names: string[]) {
+  indexFor(...names: string[]) {
     return (table: Record<string, IndexColumn>) =>
       names.reduce((acc: PgTableExtraConfig, name) => {
         const indexName = `${name}Idx`;
@@ -63,5 +69,15 @@ export class PgSchemaBuilder extends BaseSchemaBuilder {
         acc[indexName] = idx;
         return acc;
       }, {});
+  }
+
+  oneToMany(parentTable: Table, childTable: Table) {
+    relations(childTable, ({ one }) => ({
+      user: one(parentTable, {
+        fields: [childTable.userId],
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        references: [parentTable.id]
+      })
+    }));
   }
 }

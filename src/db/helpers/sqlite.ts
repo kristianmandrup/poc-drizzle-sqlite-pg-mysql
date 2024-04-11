@@ -1,4 +1,4 @@
-import { sql } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import type {
   IndexBuilderOn,
   IndexColumn,
@@ -20,6 +20,9 @@ export interface TimeOpts {
   default?: Time;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Table = SQLiteTableWithColumns<any>;
+
 export interface TableConfig {
   name: string;
   schema: string | undefined;
@@ -29,14 +32,20 @@ export interface TableConfig {
 }
 
 export class SQLiteSchemaBuilder extends BaseSchemaBuilder {
-  // SQLiteTableWithColumns<TableConfig>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  relation(table: SQLiteTableWithColumns<any>) {
+  primary() {
+    return integer('id').primaryKey().notNull();
+  }
+
+  str(name: string) {
+    return text(name);
+  }
+
+  relation(table: Table) {
     const field = integer(`${this.tableName}_id`);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (table.id) {
       // eslint-disable-next-line @typescript-eslint/dot-notation, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-      field.references(() => table['id']!, {
+      field.references(() => table.id!, {
         onDelete: 'cascade'
       });
     }
@@ -53,7 +62,7 @@ export class SQLiteSchemaBuilder extends BaseSchemaBuilder {
     return ts;
   }
 
-  indexFor(names: string[]) {
+  indexFor(...names: string[]) {
     return (table: Record<string, IndexColumn>) =>
       names.reduce((acc: Record<string, object>, name) => {
         const indexName = `${name}Idx`;
@@ -67,11 +76,13 @@ export class SQLiteSchemaBuilder extends BaseSchemaBuilder {
       }, {});
   }
 
-  primary() {
-    return integer('id').primaryKey().notNull();
-  }
-
-  str(name: string) {
-    return text(name);
+  oneToMany(parentTable: Table, childTable: Table) {
+    relations(childTable, ({ one }) => ({
+      user: one(parentTable, {
+        fields: [childTable.userId],
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        references: [parentTable.id]
+      })
+    }));
   }
 }
